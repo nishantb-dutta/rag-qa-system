@@ -9,20 +9,20 @@ collection.
 from typing import Any, Dict
 
 import chromadb
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 
 import config
 
 # Cache model + client across calls so we don't reload on every query.
-_model: SentenceTransformer | None = None
+_openai_client: OpenAI | None = None
 _collection: Any = None
 
 
-def _get_model() -> SentenceTransformer:
-    global _model
-    if _model is None:
-        _model = SentenceTransformer(config.EMBEDDING_MODEL)
-    return _model
+def _get_client() -> OpenAI:
+    global _openai_client
+    if _openai_client is None:
+        _openai_client = OpenAI(api_key=config.OPENAI_API_KEY)
+    return _openai_client
 
 
 def _get_collection():
@@ -46,10 +46,14 @@ def retrieve(query: str, top_k: int = config.TOP_K) -> Dict[str, Any]:
     Returns the raw ChromaDB query result dict with keys:
         ids, documents, metadatas, distances
     """
-    model = _get_model()
+    client = _get_client()
     collection = _get_collection()
 
-    query_embedding = model.encode([query]).tolist()
+    response = client.embeddings.create(
+        input=[query],
+        model=config.EMBEDDING_MODEL
+    )
+    query_embedding = response.data[0].embedding
 
     results = collection.query(
         query_embeddings=query_embedding,

@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 import chromadb
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 
 import config
 
@@ -29,11 +29,11 @@ def _load_text_file(path: Path) -> str:
 
 
 def _load_pdf_file(path: Path) -> str:
-    """Extract text from every page of a PDF."""
-    from PyPDF2 import PdfReader
+    """Extract text from every page of a PDF using pdfplumber."""
+    import pdfplumber
 
-    reader = PdfReader(str(path))
-    pages = [page.extract_text() or "" for page in reader.pages]
+    with pdfplumber.open(str(path)) as pdf:
+        pages = [page.extract_text() or "" for page in pdf.pages]
     return "\n".join(pages)
 
 
@@ -121,9 +121,21 @@ def ingest(directory: Path | None = None) -> int:
     print(f"[CHUNK] Created {len(all_chunks)} chunk(s).")
 
     # 3. Embed
-    print(f"[EMBED] Embedding with {config.EMBEDDING_MODEL} (this may take a moment on first run) ...")
-    model = SentenceTransformer(config.EMBEDDING_MODEL)
-    embeddings = model.encode(all_chunks, show_progress_bar=False).tolist()
+    print(f"[EMBED] Embedding with OpenAI API ({config.EMBEDDING_MODEL}) ...")
+    client = OpenAI(api_key=config.OPENAI_API_KEY)
+    
+    embeddings = []
+    # OpenAI allows up to 2048 in a batch for standard tier, we use 100 to be safe
+    EMBED_BATCH = 100  
+    print(f"    Requesting embeddings in batches of {EMBED_BATCH}...")
+    for i in range(0, len(all_chunks), EMBED_BATCH):
+        batch = all_chunks[i : i + EMBED_BATCH]
+        response = client.embeddings.create(
+            input=batch,
+            model=config.EMBEDDING_MODEL
+        )
+        batch_emb = [data.embedding for data in response.data]
+        embeddings.extend(batch_emb)
 
     # 4. Upsert into ChromaDB
     print(f"[STORE] Storing in ChromaDB at {config.CHROMA_PERSIST_DIR} ...")
