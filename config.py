@@ -22,7 +22,7 @@ EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 # ── LLM  (Google Gemini — free tier: 15 RPM / 1 M tokens per day) ───────────
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-LLM_MODEL = "gemini-2.0-flash"
+LLM_MODEL = "gemini-2.5-flash"
 
 # ── Chunking ─────────────────────────────────────────────────────────────────
 CHUNK_SIZE = 500       # characters per chunk

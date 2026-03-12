@@ -5,12 +5,14 @@ Takes retrieved context chunks and a user question, constructs a strict
 grounding prompt, and calls Gemini to produce an answer that cites its sources.
 """
 
+import os
 import time
 from typing import Any, Dict, List
 
 from google import genai
 
 import config
+from dotenv import load_dotenv
 
 
 
@@ -21,14 +23,19 @@ _client: genai.Client | None = None
 
 def _get_client() -> genai.Client:
     global _client
-    if _client is None:
-        if not config.GOOGLE_API_KEY:
-            raise RuntimeError(
-                "GOOGLE_API_KEY is not set. "
-                "Get a free key at https://aistudio.google.com/apikey "
-                "and add it to your .env file."
-            )
-        _client = genai.Client(api_key=config.GOOGLE_API_KEY)
+    # Hot-reload .env so user doesn't have to restart the app to change keys
+    load_dotenv(override=True)
+    current_key = os.getenv("GOOGLE_API_KEY", "")
+    
+    if not current_key:
+        raise RuntimeError("GOOGLE_API_KEY is missing in .env")
+        
+    # Re-initialize client if the key changed or it's the first time
+    if _client is None or getattr(_client, "_api_key", None) != current_key:
+        _client = genai.Client(api_key=current_key)
+        # Store key on client for comparison next time
+        _client._api_key = current_key
+        
     return _client
 
 

@@ -52,11 +52,17 @@ def load_documents(directory: Path) -> List[Tuple[str, str]]:
     """
     docs: List[Tuple[str, str]] = []
     for file_path in sorted(directory.rglob("*")):
+        if file_path.is_dir():
+            continue
         loader = LOADERS.get(file_path.suffix.lower())
         if loader is not None:
-            text = loader(file_path)
-            if text.strip():
-                docs.append((file_path.name, text))
+            try:
+                text = loader(file_path)
+                if text.strip():
+                    docs.append((file_path.name, text))
+            except Exception as e:
+                print(f"[ERROR] Error loading {file_path}: {e}")
+                # We continue to next file instead of raising to be more resilient
     return docs
 
 
@@ -117,7 +123,7 @@ def ingest(directory: Path | None = None) -> int:
     # 3. Embed
     print(f"[EMBED] Embedding with {config.EMBEDDING_MODEL} (this may take a moment on first run) ...")
     model = SentenceTransformer(config.EMBEDDING_MODEL)
-    embeddings = model.encode(all_chunks, show_progress_bar=True).tolist()
+    embeddings = model.encode(all_chunks, show_progress_bar=False).tolist()
 
     # 4. Upsert into ChromaDB
     print(f"[STORE] Storing in ChromaDB at {config.CHROMA_PERSIST_DIR} ...")
@@ -126,8 +132,8 @@ def ingest(directory: Path | None = None) -> int:
     # Delete existing collection to allow clean re-ingestion
     try:
         client.delete_collection(config.COLLECTION_NAME)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"    [INFO] Could not delete collection (might be in use or not exist): {e}")
 
     collection = client.get_or_create_collection(
         name=config.COLLECTION_NAME,
@@ -136,8 +142,10 @@ def ingest(directory: Path | None = None) -> int:
 
     # ChromaDB has a batch-size limit; upsert in batches of 500
     BATCH = 500
+    print(f"[STORE] Upserting {len(all_chunks)} chunks in batches of {BATCH}...")
     for i in range(0, len(all_chunks), BATCH):
-        collection.add(
+        print(f"    Upserting batch {i//BATCH + 1}...")
+        collection.upsert(
             ids=all_ids[i : i + BATCH],
             documents=all_chunks[i : i + BATCH],
             embeddings=embeddings[i : i + BATCH],

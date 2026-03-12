@@ -154,3 +154,4 @@ with gr.Blocks(title="RAG Q&A System") as demo:
 
 if __name__ == "__main__":
     demo.launch(theme=THEME)
+   #demo.launch(share=True)
