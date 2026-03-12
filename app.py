@@ -153,5 +153,10 @@ with gr.Blocks(title="RAG Q&A System") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(theme=THEME)
-   #demo.launch(share=True)
+    # For Docker: listen on 0.0.0.0 so the container is accessible
+    # Render routes traffic to port 7860 by default if specified
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=7860,
+        theme=THEME
+    )

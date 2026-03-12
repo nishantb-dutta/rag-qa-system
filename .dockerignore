@@ -1,0 +1,17 @@
+__pycache__/
+.git/
+.env
+chroma_store/
+documents/
+.gradio/
+*.pyc
+venv/
+.agents/
+.gemini/
+.agent/
+test.py
+debug_ingest.py
+test_pipeline.py
+walkthrough.md
+implementation_plan.md
+task.md

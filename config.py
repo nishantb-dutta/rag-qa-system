@@ -10,9 +10,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── Paths ────────────────────────────────────────────────────────────────────
+# ── Paths ────────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent
-DOCUMENTS_DIR = BASE_DIR / "documents"
-CHROMA_PERSIST_DIR = str(BASE_DIR / "chroma_store")
+DOCUMENTS_DIR = Path(os.getenv("DOCUMENTS_DIR", str(BASE_DIR / "documents")))
+CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "chroma_store"))
 
 # ── ChromaDB ─────────────────────────────────────────────────────────────────
 COLLECTION_NAME = "rag_docs"

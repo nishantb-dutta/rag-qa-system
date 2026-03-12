@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: rag-qa-system
+    env: docker
+    plan: free # Can be changed to pro if performance is an issue
+    region: ohio
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false # Set this in the Render Dashboard manually
+      - key: CHROMA_PERSIST_DIR
+        value: /data/chroma_store
+      - key: DOCUMENTS_DIR
+        value: /data/documents
+    disk:
+      name: rag-data
+      mountPath: /data
+      sizeGB: 1
