@@ -153,10 +153,13 @@ with gr.Blocks(title="RAG Q&A System") as demo:
 
 
 if __name__ == "__main__":
-    # For Docker: listen on 0.0.0.0 so the container is accessible
-    # Render routes traffic to port 7860 by default if specified
+    # For Docker/Render: listen on 0.0.0.0 and use the PORT environment variable
+    # Locally: if 7860 is busy, Gradio can find another port if we don't fix it strictly
+    import os
+    port = int(os.getenv("PORT", 7860))
+    
     demo.launch(
         server_name="0.0.0.0",
-        server_port=7860,
+        server_port=port,
         theme=THEME
     )
