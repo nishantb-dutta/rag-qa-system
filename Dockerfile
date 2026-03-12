@@ -4,11 +4,12 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies (needed for ChromaDB and other libraries)
-RUN apt-get update && apt-get install -y \
+# Install system dependencies
+# --allow-releaseinfo-change helps with Debian version shifts (stable -> oldstable)
+RUN apt-get update --allow-releaseinfo-change && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     curl \
-    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
