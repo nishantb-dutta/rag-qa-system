@@ -1,0 +1,6 @@
+chromadb>=0.6
+sentence-transformers>=3.0
+google-genai>=1.0
+PyPDF2>=3.0
+gradio>=5.0
+python-dotenv>=1.0

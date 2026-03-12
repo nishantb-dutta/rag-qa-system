@@ -1,0 +1,32 @@
+"""
+Centralised configuration for the RAG Q&A system.
+All tuneable parameters live here.
+"""
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# ── Paths ────────────────────────────────────────────────────────────────────
+BASE_DIR = Path(__file__).resolve().parent
+DOCUMENTS_DIR = BASE_DIR / "documents"
+CHROMA_PERSIST_DIR = str(BASE_DIR / "chroma_store")
+
+# ── ChromaDB ─────────────────────────────────────────────────────────────────
+COLLECTION_NAME = "rag_docs"
+
+# ── Embedding model (runs locally, 100 % free) ──────────────────────────────
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+
+# ── LLM  (Google Gemini — free tier: 15 RPM / 1 M tokens per day) ───────────
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
+LLM_MODEL = "gemini-2.0-flash"
+
+# ── Chunking ─────────────────────────────────────────────────────────────────
+CHUNK_SIZE = 500       # characters per chunk
+CHUNK_OVERLAP = 50     # overlap between consecutive chunks
+
+# ── Retrieval ────────────────────────────────────────────────────────────────
+TOP_K = 5              # number of chunks to retrieve per query
