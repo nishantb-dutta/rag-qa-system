@@ -10,6 +10,8 @@ services:
     envVars:
       - key: GOOGLE_API_KEY
         sync: false # Set this in the Render Dashboard manually
+      - key: OPENAI_API_KEY
+        sync: false # Set this in the Render Dashboard manually
       - key: CHROMA_PERSIST_DIR
         value: /data/chroma_store
       - key: DOCUMENTS_DIR

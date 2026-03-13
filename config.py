@@ -18,8 +18,9 @@ CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "chroma_stor
 # ── ChromaDB ─────────────────────────────────────────────────────────────────
 COLLECTION_NAME = "rag_docs"
 
-# ── Embedding model (runs locally, 100 % free) ──────────────────────────────
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+# ── Embedding model (OpenAI API) ──────────────────────────────
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+EMBEDDING_MODEL = "text-embedding-3-small"
 
 # ── LLM  (Google Gemini — free tier: 15 RPM / 1 M tokens per day) ───────────
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")

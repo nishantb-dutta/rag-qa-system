@@ -19,12 +19,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Create persistent directories
-RUN mkdir -p documents chroma_store
-
-# Pre-download the embedding model to the image (optimization)
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
-
 # Expose Gradio port
 EXPOSE 7860
 
